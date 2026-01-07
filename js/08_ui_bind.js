@@ -1,28 +1,27 @@
-// [JST 2026-01-07 00] 08_ui_bind.js
+// [JST 2026-01-07 01] 08_ui_bind.js
 (function (global) {
   var APP = global.APP = global.APP || {};
 
   APP.UI = {
     bind: function () {
-  
-  document.getElementById("btnLogin").addEventListener("click", function () {
-  try {
-    var email = document.getElementById("emailInput").value;
-    var pass = document.getElementById("passInput").value;
 
-    APP.Auth.loginEmailPassword(email, pass)
-      .then(function () {
-        APP.State.setMessage("", "ログインしました。");
-      })
-      .catch(function (e) {
-        APP.State.setMessage("ログイン失敗: " + (e && e.message ? e.message : e), "");
+      // ログイン（メール/パスワード）
+      document.getElementById("btnLogin").addEventListener("click", function () {
+        try {
+          var email = document.getElementById("emailInput").value;
+          var pass = document.getElementById("passInput").value;
+
+          APP.Auth.loginEmailPassword(email, pass)
+            .then(function () {
+              APP.State.setMessage("", "ログインしました。");
+            })
+            .catch(function (e) {
+              APP.State.setMessage("ログイン失敗: " + (e && e.message ? e.message : e), "");
+            });
+        } catch (e) {
+          APP.State.setMessage("ログイン処理で例外: " + (e && e.message ? e.message : e), "");
+        }
       });
-  } catch (e) {
-    APP.State.setMessage("ログイン処理で例外: " + (e && e.message ? e.message : e), "");
-  }
-});
-
-
 
       document.getElementById("btnLogout").addEventListener("click", function () {
         APP.Auth.logout();
@@ -63,6 +62,7 @@
         var res = APP.OperatorA.parseItemsCsv(text);
         if (res.error) return APP.State.setMessage(res.error, "");
         APP.State.setItems(res.items);
+
         // bidNoチェック（ヘッダーがあれば一致確認）
         var st = APP.State.get();
         if (st.header && st.items.length) {
@@ -100,28 +100,6 @@
         }
         APP.OperatorA.loadBid(st.header.bidNo);
       });
-
-     document.getElementById("btnLogin").addEventListener("click", function () {
-  try {
-    var email = document.getElementById("emailInput").value;
-    var pass = document.getElementById("passInput").value;
-
-    APP.Auth.loginEmailPassword(email, pass)
-      .then(function () {
-        APP.State.setMessage("", "ログインしました。");
-      })
-      .catch(function (e) {
-        APP.State.setMessage("ログイン失敗: " + (e && e.message ? e.message : e), "");
-      });
-  } catch (e) {
-    APP.State.setMessage("ログイン処理で例外: " + (e && e.message ? e.message : e), "");
-  }
-});
-
     }
   };
 })(window);
-
-
-
-
