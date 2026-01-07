@@ -12,6 +12,15 @@
       // storageBucket: "...",
       // messagingSenderId: "...",
       // appId: "..."
+
+  apiKey: "AIzaSyAAinuBPDNjxQ63TEgDnRjP2pfWIXRBrQ0",
+  authDomain: "bidding-920b8.firebaseapp.com",
+  projectId: "bidding-920b8",
+  storageBucket: "bidding-920b8.firebasestorage.app",
+  messagingSenderId: "554171859200",
+  appId: "1:554171859200:web:1b1412a6a8c57fc9a4f3e5",
+  measurementId: "G-HC01P1974L"
+      
     },
 
     // Firestore パス設計（固定）
@@ -58,3 +67,4 @@
     }
   };
 })(window);
+
