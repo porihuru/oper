@@ -158,6 +158,11 @@
         var st = APP.State.get();
         APP.State.setMessage("", "");
 
+        // すでに同じ状態なら何もしない（Rules拒否/二重クリック対策）
+        if (st.header && st.header.status && st.header.status === newStatus) {
+          return APP.State.setMessage("", "すでに " + newStatus + " です。");
+        }
+        
         // ログイン確認
         if (!st.user) return APP.State.setMessage("未ログインです。", "");
 
@@ -210,6 +215,7 @@
 
   };
 })(window);
+
 
 
 
