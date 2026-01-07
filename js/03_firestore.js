@@ -59,15 +59,16 @@
     },
 
 // ★これを追加★ bids の status 更新（draft→open→closed）
-    updateBidStatus: function (bidNo, status) {
-      return APP._firestore.collection(APP.CONFIG.paths.bids).doc(bidNo).update({
-        status: status,
-        statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-    // ★ここまで追加★
+updateBidStatus: function (bidNo, status) {
+  return APP._firestore.collection(APP.CONFIG.paths.bids).doc(bidNo).update({
+    status: status
+  });
+}
+// ★ここまで追加★
+
 
     
   };
 })(window);
+
 
