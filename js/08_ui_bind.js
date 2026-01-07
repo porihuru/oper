@@ -5,10 +5,25 @@
   APP.UI = {
     bind: function () {
       document.getElementById("btnLogin").addEventListener("click", function () {
-        APP.Auth.loginGoogle().catch(function (e) {
-          APP.State.setMessage("ログイン失敗: " + (e && e.message ? e.message : e), "");
-        });
+  try {
+    APP.Util.log("Login click");
+    APP.Util.log("firebase exists? " + (typeof firebase));
+    APP.Util.log("apps length: " + (firebase && firebase.apps ? firebase.apps.length : "n/a"));
+
+    APP.Auth.loginGoogle()
+      .then(function (res) {
+        APP.Util.log("login success");
+      })
+      .catch(function (e) {
+        APP.Util.log("login failed: " + (e && e.message ? e.message : e));
+        APP.State.setMessage("ログイン失敗: " + (e && e.message ? e.message : e), "");
       });
+  } catch (e) {
+    APP.Util.log("login handler error: " + (e && e.message ? e.message : e));
+    APP.State.setMessage("ログイン処理で例外: " + (e && e.message ? e.message : e), "");
+  }
+});
+
 
       document.getElementById("btnLogout").addEventListener("click", function () {
         APP.Auth.logout();
@@ -94,3 +109,4 @@
     }
   };
 })(window);
+
