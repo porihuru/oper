@@ -93,6 +93,17 @@
         APP.OperatorA.loadBid(bidNo);
       });
 
+      // ★これを追加★：入札開始
+      document.getElementById("btnOpenBid").addEventListener("click", function () {
+        APP.OperatorA.setBidStatus("open");
+      });
+
+      // ★これを追加★：入札終了
+      document.getElementById("btnCloseBid").addEventListener("click", function () {
+        APP.OperatorA.setBidStatus("closed");
+      });
+      // ★ここまで追加★
+
       document.getElementById("btnReload").addEventListener("click", function () {
         var st = APP.State.get();
         if (!st.header || APP.Util.isEmpty(st.header.bidNo)) {
@@ -103,3 +114,4 @@
     }
   };
 })(window);
+
