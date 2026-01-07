@@ -4,25 +4,23 @@
 
   APP.UI = {
     bind: function () {
-      document.getElementById("btnLogin").addEventListener("click", function () {
+     document.getElementById("btnLogin").addEventListener("click", function () {
   try {
-    APP.Util.log("Login click");
-    APP.Util.log("firebase exists? " + (typeof firebase));
-    APP.Util.log("apps length: " + (firebase && firebase.apps ? firebase.apps.length : "n/a"));
+    var email = document.getElementById("emailInput").value;
+    var pass = document.getElementById("passInput").value;
 
-    APP.Auth.loginGoogle()
-      .then(function (res) {
-        APP.Util.log("login success");
+    APP.Auth.loginEmailPassword(email, pass)
+      .then(function () {
+        APP.State.setMessage("", "ログインしました。");
       })
       .catch(function (e) {
-        APP.Util.log("login failed: " + (e && e.message ? e.message : e));
         APP.State.setMessage("ログイン失敗: " + (e && e.message ? e.message : e), "");
       });
   } catch (e) {
-    APP.Util.log("login handler error: " + (e && e.message ? e.message : e));
     APP.State.setMessage("ログイン処理で例外: " + (e && e.message ? e.message : e), "");
   }
 });
+
 
 
       document.getElementById("btnLogout").addEventListener("click", function () {
@@ -122,5 +120,6 @@
     }
   };
 })(window);
+
 
 
