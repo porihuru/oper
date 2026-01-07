@@ -103,6 +103,9 @@ function requireOperatorA() {
       });
 
       document.getElementById("btnLoadBid").addEventListener("click", function () {
+
+if (!requireOperatorA()) return;
+        
         var bidNo = document.getElementById("bidNoInput").value;
         APP.OperatorA.loadBid(bidNo);
       });
@@ -119,6 +122,9 @@ function requireOperatorA() {
       // ★ここまで追加★
 
       document.getElementById("btnReload").addEventListener("click", function () {
+
+if (!requireOperatorA()) return;
+        
         var st = APP.State.get();
         if (!st.header || APP.Util.isEmpty(st.header.bidNo)) {
           return APP.State.setMessage("読込対象の入札番号がありません。", "");
@@ -128,5 +134,6 @@ function requireOperatorA() {
     }
   };
 })(window);
+
 
 
