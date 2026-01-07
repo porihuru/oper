@@ -188,10 +188,18 @@
             return APP.OperatorA.loadBid(bidNo);
         })
           .catch(function (e) {
-            APP.Util.log("[setBidStatus] FAILED:", e);
+          var msg =
+            (e && e.message) ? e.message :
+            (typeof e === "string") ? e :
+            JSON.stringify(e);
+
+            console.error("[setBidStatus] FAILED:", e);
+            APP.Util.log("[setBidStatus] FAILED: " + msg);
+
             APP.State.setActionNote("状態更新失敗");
-            APP.State.setMessage("状態更新に失敗: " + (e && e.message ? e.message : e), "");
-        });
+            APP.State.setMessage("状態更新に失敗: " + msg, "");
+          });
+
 
 
       } catch (e) {
@@ -202,6 +210,7 @@
 
   };
 })(window);
+
 
 
 
