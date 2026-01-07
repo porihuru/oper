@@ -177,17 +177,22 @@
           return APP.State.setMessage("不正な状態です: " + newStatus, "");
         }
 
-        APP.State.setActionNote("状態更新中...");
+       APP.State.setActionNote("状態更新中...");
         return APP.DB.updateBidStatus(bidNo, newStatus)
           .then(function () {
+            APP.Util.log("[setBidStatus] updateBidStatus OK");
             APP.State.setActionNote("状態更新完了: " + newStatus);
             APP.State.setMessage("", "状態を更新しました: " + newStatus);
+
+            APP.Util.log("[setBidStatus] loadBid start");
             return APP.OperatorA.loadBid(bidNo);
-          })
+        })
           .catch(function (e) {
+            APP.Util.log("[setBidStatus] FAILED:", e);
             APP.State.setActionNote("状態更新失敗");
             APP.State.setMessage("状態更新に失敗: " + (e && e.message ? e.message : e), "");
-          });
+        });
+
 
       } catch (e) {
         APP.State.setMessage("状態更新で例外: " + (e && e.message ? e.message : e), "");
@@ -197,5 +202,6 @@
 
   };
 })(window);
+
 
 
