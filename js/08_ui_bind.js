@@ -102,11 +102,25 @@
         APP.OperatorA.loadBid(st.header.bidNo);
       });
 
-      document.getElementById("btnSaveDraft").addEventListener("click", function () {
-        // 今回の最小構成では「commit」と同じ（statusはdraft固定）
-        APP.OperatorA.commit();
+     document.getElementById("btnLogin").addEventListener("click", function () {
+  try {
+    var email = document.getElementById("emailInput").value;
+    var pass = document.getElementById("passInput").value;
+
+    APP.Auth.loginEmailPassword(email, pass)
+      .then(function () {
+        APP.State.setMessage("", "ログインしました。");
+      })
+      .catch(function (e) {
+        APP.State.setMessage("ログイン失敗: " + (e && e.message ? e.message : e), "");
       });
+  } catch (e) {
+    APP.State.setMessage("ログイン処理で例外: " + (e && e.message ? e.message : e), "");
+  }
+});
+
     }
   };
 })(window);
+
 
