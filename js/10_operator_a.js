@@ -137,6 +137,7 @@
               deliveryPlace: bid.deliveryPlace || "",
               dueDate: bid.dueDate || "",
               note: bid.note || ""
+              status: bid.status || ""   // ★追加
             };
             items.sort(function (a, b) { return Number(a.seq) - Number(b.seq); });
             APP.State.setBidNo(bidNo);
@@ -215,6 +216,7 @@
 
   };
 })(window);
+
 
 
 
