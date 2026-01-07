@@ -152,6 +152,58 @@
           APP.State.setActionNote("読込失敗");
           APP.State.setMessage("読込エラー: " + (e && e.message ? e.message : e), "");
         });
+
+
+
+// ★これを追加★：入札の状態を変更（draft→open→closed）
+APP.OperatorA.setBidStatus = function (newStatus) {
+  try {
+    var st = APP.State.get();
+
+    // ログイン確認
+    if (!st.user) {
+      return APP.State.setMessage("未ログインです。", "");
+    }
+
+    // role確認（operator または admin のみ）
+    if (st.role !== "operator" && st.role !== "admin") {
+      return APP.State.setMessage("権限がありません（operator/adminのみ）。", "");
+    }
+
+    // 入札番号確認
+    var bidNo = (st.header && st.header.bidNo) ? st.header.bidNo : st.bidNo;
+    if (APP.Util.isEmpty(bidNo)) {
+      return APP.State.setMessage("入札番号がありません。先にヘッダー解析または入札番号入力をしてください。", "");
+    }
+
+    // newStatus妥当性
+    if (newStatus !== "open" && newStatus !== "closed") {
+      return APP.State.setMessage("不正な状態です: " + newStatus, "");
+    }
+
+    // 重要：bidId を bidNo として扱う（設計統一）
+    var bidId = bidNo;
+
+    // Firestore更新
+    APP.DB.updateBidStatus(bidId, newStatus)
+      .then(function () {
+        APP.State.setMessage("", "状態を更新しました: " + newStatus);
+        // ついでに再読込（画面状態を最新化）
+        APP.OperatorA.loadBid(bidNo);
+      })
+      .catch(function (e) {
+        APP.State.setMessage("状態更新に失敗: " + (e && e.message ? e.message : e), "");
+      });
+
+  } catch (e) {
+    APP.State.setMessage("状態更新で例外: " + (e && e.message ? e.message : e), "");
+  }
+};
+// ★ここまで追加★
+
+
+      
     }
   };
 })(window);
+
