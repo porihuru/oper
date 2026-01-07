@@ -119,7 +119,7 @@
         });
     },
 
-    loadBid: function (bidNo) {
+       loadBid: function (bidNo) {
       APP.State.setMessage("", "");
       if (APP.Util.isEmpty(bidNo)) return APP.State.setMessage("入札番号が空です。", "");
 
@@ -128,7 +128,6 @@
         .then(function (bid) {
           if (!bid) throw new Error("bids/" + bidNo + " が見つかりません。");
           return APP.DB.getItems(bidNo).then(function (items) {
-            // stateへ反映（header/items 形式へ変換）
             var header = {
               bidNo: bidNo,
               to1: bid.to1 || "",
@@ -139,7 +138,6 @@
               dueDate: bid.dueDate || "",
               note: bid.note || ""
             };
-            // items整形
             items.sort(function (a, b) { return Number(a.seq) - Number(b.seq); });
             APP.State.setBidNo(bidNo);
             APP.State.setHeader(header);
@@ -152,58 +150,52 @@
           APP.State.setActionNote("読込失敗");
           APP.State.setMessage("読込エラー: " + (e && e.message ? e.message : e), "");
         });
+    },
 
+    // ★これを追加★：入札の状態を変更（draft→open→closed）
+    setBidStatus: function (newStatus) {
+      try {
+        var st = APP.State.get();
+        APP.State.setMessage("", "");
 
+        // ログイン確認
+        if (!st.user) return APP.State.setMessage("未ログインです。", "");
 
-// ★これを追加★：入札の状態を変更（draft→open→closed）
-APP.OperatorA.setBidStatus = function (newStatus) {
-  try {
-    var st = APP.State.get();
+        // role確認（operator または admin のみ）
+        if (st.role !== "operator" && st.role !== "admin") {
+          return APP.State.setMessage("権限がありません（operator/adminのみ）。", "");
+        }
 
-    // ログイン確認
-    if (!st.user) {
-      return APP.State.setMessage("未ログインです。", "");
+        // 入札番号確認
+        var bidNo = (st.header && st.header.bidNo) ? st.header.bidNo : st.bidNo;
+        if (APP.Util.isEmpty(bidNo)) {
+          return APP.State.setMessage("入札番号がありません。先にヘッダー解析または入札番号入力をしてください。", "");
+        }
+
+        // newStatus妥当性
+        if (newStatus !== "open" && newStatus !== "closed") {
+          return APP.State.setMessage("不正な状態です: " + newStatus, "");
+        }
+
+        APP.State.setActionNote("状態更新中...");
+        return APP.DB.updateBidStatus(bidNo, newStatus)
+          .then(function () {
+            APP.State.setActionNote("状態更新完了: " + newStatus);
+            APP.State.setMessage("", "状態を更新しました: " + newStatus);
+            return APP.OperatorA.loadBid(bidNo);
+          })
+          .catch(function (e) {
+            APP.State.setActionNote("状態更新失敗");
+            APP.State.setMessage("状態更新に失敗: " + (e && e.message ? e.message : e), "");
+          });
+
+      } catch (e) {
+        APP.State.setMessage("状態更新で例外: " + (e && e.message ? e.message : e), "");
+      }
     }
+    // ★ここまで追加★
 
-    // role確認（operator または admin のみ）
-    if (st.role !== "operator" && st.role !== "admin") {
-      return APP.State.setMessage("権限がありません（operator/adminのみ）。", "");
-    }
-
-    // 入札番号確認
-    var bidNo = (st.header && st.header.bidNo) ? st.header.bidNo : st.bidNo;
-    if (APP.Util.isEmpty(bidNo)) {
-      return APP.State.setMessage("入札番号がありません。先にヘッダー解析または入札番号入力をしてください。", "");
-    }
-
-    // newStatus妥当性
-    if (newStatus !== "open" && newStatus !== "closed") {
-      return APP.State.setMessage("不正な状態です: " + newStatus, "");
-    }
-
-    // 重要：bidId を bidNo として扱う（設計統一）
-    var bidId = bidNo;
-
-    // Firestore更新
-    APP.DB.updateBidStatus(bidId, newStatus)
-      .then(function () {
-        APP.State.setMessage("", "状態を更新しました: " + newStatus);
-        // ついでに再読込（画面状態を最新化）
-        APP.OperatorA.loadBid(bidNo);
-      })
-      .catch(function (e) {
-        APP.State.setMessage("状態更新に失敗: " + (e && e.message ? e.message : e), "");
-      });
-
-  } catch (e) {
-    APP.State.setMessage("状態更新で例外: " + (e && e.message ? e.message : e), "");
-  }
-};
-// ★ここまで追加★
-
-
-      
-    }
   };
 })(window);
+
 
