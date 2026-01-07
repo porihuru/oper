@@ -1,19 +1,27 @@
-// [JST 2026-01-07 00] 02_auth.js
+// [JST 2026-01-07 01] 02_auth.js
 (function (global) {
   var APP = global.APP = global.APP || {};
 
   APP.Auth = {
     init: function () {
-      // Auth状態監視
       firebase.auth().onAuthStateChanged(function (user) {
         APP.State.setUser(user);
         APP.Render.renderAuth();
       });
     },
 
-    loginGoogle: function () {
-      var provider = new firebase.auth.GoogleAuthProvider();
-      return firebase.auth().signInWithPopup(provider);
+    // メール/パスワードでログイン（Googleは使わない）
+    loginEmailPassword: function (email, password) {
+      email = APP.Util.trim(email);
+      password = String(password || "");
+
+      if (APP.Util.isEmpty(email)) {
+        return Promise.reject(new Error("メールアドレスが空です。"));
+      }
+      if (APP.Util.isEmpty(password)) {
+        return Promise.reject(new Error("パスワードが空です。"));
+      }
+      return firebase.auth().signInWithEmailAndPassword(email, password);
     },
 
     logout: function () {
