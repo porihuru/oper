@@ -5,6 +5,20 @@
   APP.UI = {
     bind: function () {
 
+// ★これを追加★：OperatorA が未読込なら即エラー表示
+function requireOperatorA() {
+  if (!APP.OperatorA) {
+    APP.State.setMessage("OperatorA が未定義です。10_operator_a.js の読込失敗(404/構文エラー)を確認してください。", "");
+    return false;
+  }
+  if (typeof APP.OperatorA.loadBid !== "function") {
+    APP.State.setMessage("OperatorA.loadBid が未定義です。10_operator_a.js の内容/キャッシュを確認してください。", "");
+    return false;
+  }
+  return true;
+}
+// ★ここまで追加★
+    
       // ログイン（メール/パスワード）
       document.getElementById("btnLogin").addEventListener("click", function () {
         try {
@@ -114,4 +128,5 @@
     }
   };
 })(window);
+
 
