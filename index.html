@@ -26,12 +26,19 @@
 <body>
 
   <div class="bar">
-    <strong>入札 登録（取扱者）</strong>
-    <span class="muted" id="authStatus">未ログイン</span>
-    <button class="btn" id="btnLogin">ログイン</button>
-    <button class="btn" id="btnLogout" disabled>ログアウト</button>
-    <button class="btn" id="btnReset">再読込</button>
-  </div>
+  <strong>入札 登録（取扱者）</strong>
+  <span class="muted" id="authStatus">未ログイン</span>
+
+  <label class="muted">メール</label>
+  <input type="text" id="emailInput" placeholder="opr@pss.pss" />
+
+  <label class="muted">パスワード</label>
+  <input type="password" id="passInput" placeholder="********" />
+
+  <button class="btn" id="btnLogin">ログイン</button>
+  <button class="btn" id="btnLogout" disabled>ログアウト</button>
+  <button class="btn" id="btnReset">再読込</button>
+</div>
 
   <div class="card">
     <div class="row">
@@ -101,3 +108,4 @@
   <script src="./js/app.js"></script>
 </body>
 </html>
+
