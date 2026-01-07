@@ -4,7 +4,8 @@
 
   APP.UI = {
     bind: function () {
-     document.getElementById("btnLogin").addEventListener("click", function () {
+  
+  document.getElementById("btnLogin").addEventListener("click", function () {
   try {
     var email = document.getElementById("emailInput").value;
     var pass = document.getElementById("passInput").value;
@@ -120,6 +121,7 @@
     }
   };
 })(window);
+
 
 
 
