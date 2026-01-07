@@ -1,228 +1,103 @@
-﻿<!doctype html>
-<html lang='ja'><head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>入札フォーム</title>
-<style>
-body{font-family:system-ui,Arial;line-height:1.6;margin:12px;}
-label{display:inline-block;min-width:7em;margin:2px 0;}
-input[type=text],input[type=email],input[type=date],input[type=number]{padding:4px;}
-table{border-collapse:collapse;width:100%;margin-top:10px;}
-th,td{border:1px solid #ccc;padding:6px;vertical-align:top;}
-th{background:#f5f5f5;}
-pre{white-space:pre-wrap;background:#f9f9f9;border:1px solid #ccc;padding:8px;}
-button{margin:6px 4px;padding:6px 10px;}
-.label{display:block;font-size:12px;color:#666;margin:2px 0 4px;}
-.field{display:inline-block;width:240px;vertical-align:top;margin:0 12px 8px 0;}
-.field.qty,.field.unit,.field.price{width:60px !important;}
-.field.qty textarea.readonly{width:60px !important;}
-.field.unit textarea.readonly{width:60px !important;}
-.field.price input[type=number]{width:60px !important;}
-.field.qty textarea.readonly,.field.unit textarea.readonly,.field.price input[type=number]{box-sizing:border-box;}
-textarea.readonly{font-size:14px;border:1px solid #fff;background:#fff;width:100%;resize:none;overflow:hidden;white-space:pre-wrap;word-break:break-word;height:1.4em;}
-input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
-input[type=number]{-moz-appearance:textfield;font-size:14px;}
-@media print{
-  body *{display:none !important;}
-  #pv,#pvBody{display:block !important;visibility:visible !important;}
-  #pvBody{margin:0;padding:0;border:none;background:#fff;font-family:monospace;white-space:pre-wrap;}
-}
-</style></head>
-<body data-mailpw='123456'>
-<h2>入札フォーム</h2>
-<form id='f'>
-<div><label>日付:</label><input type='date' id='date'></div>
-<div><label>会社名:</label><input type='text' id='company'></div>
-<div><label>住所:</label><input type='text' id='addr'></div>
-<div><label>メール:</label><input type='email' id='email'></div>
-<div><label>担当者:</label><input type='text' id='person'></div>
-<div><label>担当者連絡先:</label><input type='text' id='tel'></div>
-<div id='h1Text'>納地：札幌</div>
-<div id='h2Text'>納期：R7.09.20</div>
-<div id='h3Text'>担当：第○○○会計隊　担当者名</div>
-<div id='h4Text'>備考４</div>
-<div id='h5Text'>備考５</div>
-<div>入札ID：<span id='bidId'>1001</span></div>
-<div>入札日：<span id='bidDate'>10月1日</span></div>
-<div>入札時間：<span id='bidTime'>1500</span></div>
-<div>返信アドレス：<span id='reply'>sample00mail@5555321test.com</span></div>
-<table id='items'><thead><tr><th style='width:5em'>番号</th><th>品名・規格・予定数量・単位・単価・備考</th></tr></thead><tbody>
-<tr><td>1</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目12345678910111213141</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格1</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>10</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price1' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考1</textarea></div></td></tr>
-<tr><td>2</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目2</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格2</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>11</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price2' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考2</textarea></div></td></tr>
-<tr><td>3</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目3</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格3</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>12</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price3' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考3</textarea></div></td></tr>
-<tr><td>4</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目4</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格4</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>13</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price4' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考4</textarea></div></td></tr>
-<tr><td>5</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目5</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格5</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>14</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price5' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考5</textarea></div></td></tr>
-<tr><td>6</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目6</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格6</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>15</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price6' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考6</textarea></div></td></tr>
-<tr><td>7</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目7</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格7</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>16</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price7' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考7</textarea></div></td></tr>
-<tr><td>8</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目8</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格8</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>17</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price8' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考8</textarea></div></td></tr>
-<tr><td>9</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目9</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格9</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>18</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price9' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考9</textarea></div></td></tr>
-<tr><td>10</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目10</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格10</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>19</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price10' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考10</textarea></div></td></tr>
-<tr><td>11</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目11</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格11</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>20</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price11' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考11</textarea></div></td></tr>
-<tr><td>12</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目12</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格12</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>21</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price12' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考12</textarea></div></td></tr>
-<tr><td>13</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目13</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格13</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>22</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price13' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考13</textarea></div></td></tr>
-<tr><td>14</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目14</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格14</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>23</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price14' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考14</textarea></div></td></tr>
-<tr><td>15</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目15</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格15</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>24</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price15' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考15</textarea></div></td></tr>
-<tr><td>16</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目16</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格16</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>25</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price16' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考16</textarea></div></td></tr>
-<tr><td>17</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目17</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格17</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>26</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price17' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考17</textarea></div></td></tr>
-<tr><td>18</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目18</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格18</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>27</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price18' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考18</textarea></div></td></tr>
-<tr><td>19</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目19</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格19</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>28</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price19' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考19</textarea></div></td></tr>
-<tr><td>20</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目20</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格20</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>29</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price20' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考20</textarea></div></td></tr>
-<tr><td>21</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目21</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格21</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>30</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price21' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考21</textarea></div></td></tr>
-<tr><td>22</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目22</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格22</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>31</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price22' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考22</textarea></div></td></tr>
-<tr><td>23</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目23</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格23</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>32</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price23' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考23</textarea></div></td></tr>
-<tr><td>24</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目24</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格24</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>33</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price24' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考24</textarea></div></td></tr>
-<tr><td>25</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目25</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格25</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>34</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price25' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考25</textarea></div></td></tr>
-<tr><td>26</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目26</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格26</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>35</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price26' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考26</textarea></div></td></tr>
-<tr><td>27</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目27</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格27</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>36</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price27' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考27</textarea></div></td></tr>
-<tr><td>28</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目28</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格28</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>37</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price28' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考28</textarea></div></td></tr>
-<tr><td>29</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目29</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格29</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>38</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price29' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考29</textarea></div></td></tr>
-<tr><td>30</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目30</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格30</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>39</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price30' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考30</textarea></div></td></tr>
-<tr><td>31</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目31</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格31</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>40</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price31' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考31</textarea></div></td></tr>
-<tr><td>32</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目32</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格32</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>41</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price32' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考32</textarea></div></td></tr>
-<tr><td>33</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目33</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格33</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>42</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price33' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考33</textarea></div></td></tr>
-<tr><td>34</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目34</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格34</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>43</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price34' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考34</textarea></div></td></tr>
-<tr><td>35</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目35</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格35</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>44</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price35' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考35</textarea></div></td></tr>
-<tr><td>36</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目36</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格36</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>45</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price36' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考36</textarea></div></td></tr>
-<tr><td>37</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目37</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格37</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>46</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price37' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考37</textarea></div></td></tr>
-<tr><td>38</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目38</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格38</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>47</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price38' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考38</textarea></div></td></tr>
-<tr><td>39</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目39</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格39</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>48</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price39' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考39</textarea></div></td></tr>
-<tr><td>40</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目40</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格40</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>49</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price40' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考40</textarea></div></td></tr>
-<tr><td>41</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目41</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格41</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>50</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price41' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考41</textarea></div></td></tr>
-<tr><td>42</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目42</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格42</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>51</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price42' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考42</textarea></div></td></tr>
-<tr><td>43</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目43</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格43</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>52</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price43' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考43</textarea></div></td></tr>
-<tr><td>44</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目44</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格44</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>53</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price44' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考44</textarea></div></td></tr>
-<tr><td>45</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目45</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格45</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>54</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price45' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考45</textarea></div></td></tr>
-<tr><td>46</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目46</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格46</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>55</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price46' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考46</textarea></div></td></tr>
-<tr><td>47</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目47</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格47</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>56</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price47' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考47</textarea></div></td></tr>
-<tr><td>48</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目48</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格48</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>57</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price48' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考48</textarea></div></td></tr>
-<tr><td>49</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目49</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格49</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>58</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price49' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考49</textarea></div></td></tr>
-<tr><td>50</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目50</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格50</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>59</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price50' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考50</textarea></div></td></tr>
-<tr><td>51</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目51</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格51</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>60</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price51' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考51</textarea></div></td></tr>
-<tr><td>52</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目52</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格52</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>61</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price52' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考52</textarea></div></td></tr>
-<tr><td>53</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目53</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格53</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>62</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price53' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考53</textarea></div></td></tr>
-<tr><td>54</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目54</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格54</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>63</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price54' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考54</textarea></div></td></tr>
-<tr><td>55</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目55</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格55</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>64</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price55' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考55</textarea></div></td></tr>
-<tr><td>56</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目56</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格56</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>65</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price56' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考56</textarea></div></td></tr>
-<tr><td>57</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目57</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格57</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>66</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price57' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考57</textarea></div></td></tr>
-<tr><td>58</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目58</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格58</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>67</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price58' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考58</textarea></div></td></tr>
-<tr><td>59</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目59</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格59</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>68</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price59' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考59</textarea></div></td></tr>
-<tr><td>60</td><td><div class='field'><span class='label'>品名:</span><textarea class='readonly' readonly data-field='name'>品目60</textarea></div><div class='field'><span class='label'>規格:</span><textarea class='readonly' readonly data-field='spec'>規格60</textarea></div><div class='field qty'><span class='label'>予定数量:</span><textarea class='readonly' readonly data-field='qty'>69</textarea></div><div class='field unit'><span class='label'>単位:</span><textarea class='readonly' readonly data-field='unit'>個</textarea></div><div class='field price'><span class='label'>単価:</span><input type='number' id='price60' step='0.01' min='0'></div><div class='field'><span class='label'>備考:</span><textarea class='readonly' readonly data-field='note'>備考60</textarea></div></td></tr>
-</tbody></table>
-<button type='button' id='previewBtn' onclick='preview()'>内容を確認</button>
-</form>
-<div id='pv' style='display:none'>
-<pre id='pvBody'></pre>
-<div id='stat' style='font-size:12px;color:#333'></div>
-<button onclick='sendMail()'>この内容でメール送信</button>
-<button onclick='sendEnc()'>メールを暗号化して送信</button>
-<button onclick='saveTxt()'>本文を.txtで保存</button>
-<button onclick='window.print()'>印刷</button>
-</div>
-<script>
-let pv='';
-function esc(s){return (s||'').toString().trim();}
-function b64(s){return btoa(unescape(encodeURIComponent(String(s))));}
-function rows(){
-  const r=[];
-  document.querySelectorAll('#items tbody tr').forEach((tr,i)=>{
-    const name = esc(tr.querySelector('textarea[data-field=name]').value);
-    const spec = esc(tr.querySelector('textarea[data-field=spec]').value);
-    const qty  = esc(tr.querySelector('textarea[data-field=qty]').value);
-    const unit = esc(tr.querySelector('textarea[data-field=unit]').value);
-    const price= esc(tr.querySelector('input[type=number]').value);
-    const note = esc(tr.querySelector('textarea[data-field=note]').value);
-    if(price!=='' && !isNaN(parseFloat(price))){
-      r.push({no:String(i+1),name,spec,qty,unit,price,note});
-    }
-  });
-  return r;
-}
-function ensurePW(){
-  const exp=(document.body.dataset.mailpw||'').trim();
-  const x=prompt('パスワード(K5)');
-  if(x===null) return false;
-  return x.trim()===exp;
-}
-function preview(){
-  const d=esc(document.getElementById('date').value);
-  const c=esc(document.getElementById('company').value);
-  const a=esc(document.getElementById('addr').value);
-  const e=esc(document.getElementById('email').value);
-  const p=esc(document.getElementById('person').value);
-  const t=esc(document.getElementById('tel').value);
-  const h=[1,2,3,4,5].map(i=>esc(document.getElementById('h'+i+'Text').textContent));
-  const bid=esc(document.getElementById('bidId').textContent);
-  const bdd=esc(document.getElementById('bidDate').textContent);
-  const bdt=esc(document.getElementById('bidTime').textContent);
-  const to =esc(document.getElementById('reply').textContent);
-  const list=rows();
-  if(list.length==0){alert('単価の入っている品目がありません');return;}
-  const lines=[
-    '【入札書】',
-    '日付: '+d,
-    '会社名: '+c,
-    '住所: '+a,
-    'メール: '+e,
-    '担当者: '+p,
-    '担当者連絡先: '+t,
-    '備考1. '+h[0],
-    '備考2. '+h[1],
-    '備考3. '+h[2],
-    '備考4. '+h[3],
-    '備考5. '+h[4],
-    '入札ID: '+bid,
-    '入札日: '+bdd,
-    '入札時間: '+bdt,
-    '返信アドレス: '+to,
-    '番号 品名・規格・予定数量・単位・単価・備考'];
-  list.forEach(r=>{
-    lines.push(r.no+' '+r.name+' '+r.spec+' '+r.qty+' '+r.unit+' '+r.price+' '+r.note);
-  });
-  const s=lines.join('\n');
-  pv=s;
-  document.getElementById('pvBody').textContent=s;
-  document.getElementById('pv').style.display='block';
-  const mailto='mailto:'+to+'?subject='+encodeURIComponent('入札書提出（'+c+'）')+'&body='+encodeURIComponent(s);
-  document.getElementById('stat').textContent='mailto長:'+mailto.length+' / 文字数:'+s.length;
-  const btn=document.getElementById('previewBtn');
-  if(btn){btn.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{window.scrollBy(0,-8);},350);} 
-}
-function sendMail(){
-  if(!ensurePW())return;
-  const to=document.getElementById('reply').textContent;
-  const c=document.getElementById('company').value;
-  const url='mailto:'+to+'?subject='+encodeURIComponent('入札書提出（'+c+'）')+'&body='+encodeURIComponent(pv);
-  window.location.href=url;
-}
-function sendEnc(){
-  if(!ensurePW())return;
-  const to=document.getElementById('reply').textContent;
-  const c=document.getElementById('company').value;
-  const d=document.getElementById('date').value;
-  const a=document.getElementById('addr').value;
-  const e=document.getElementById('email').value;
-  const p=document.getElementById('person').value;
-  const t=document.getElementById('tel').value;
-  const bid=document.getElementById('bidId').textContent;
-  const list=rows();
-  if(list.length==0){alert('単価の入っている品目がありません');return;}
-  let s='入札ID:'+bid+'\n日付:'+d+'\n会社名:'+c+'\n住所:'+a+'\nメール:'+e+'\n担当者:'+p+'\n担当者連絡先:'+t+'\n\n番号,単価(Base64)\n';
-  list.forEach(r=>{s+=r.no+','+b64(r.price)+'\n';});
-  const url='mailto:'+to+'?subject='+encodeURIComponent('【暗号化】入札単価（'+c+'）')+'&body='+encodeURIComponent(s);
-  window.location.href=url;
-}
-function saveTxt(){
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([pv],{type:'text/plain'}));
-  a.download='入札書本文.txt';
-  a.click();
-}
-function autoResize(){
-  document.querySelectorAll('textarea.readonly').forEach(function(el){
-    el.style.height='1.4em';
-    el.style.height=el.scrollHeight+'px';
-  });
-}
-window.addEventListener('load',autoResize);
-window.addEventListener('input',autoResize);
-</script>
-</body></html>
+<!-- [JST 2026-01-07 00] index.html -->
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>入札 登録（取扱者）</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; margin: 12px; }
+    .bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .card { border: 1px solid #ccc; border-radius: 8px; padding: 10px; margin-top: 10px; }
+    textarea { width: 100%; height: 140px; }
+    input[type="text"] { width: 360px; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .muted { color:#666; }
+    .error { color:#b00020; font-weight: 600; }
+    .ok { color:#0a7a2f; font-weight: 600; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border:1px solid #ddd; padding: 6px; vertical-align: top; }
+    th { background:#f7f7f7; }
+    .scrollX { overflow-x:auto; }
+    .btn { padding: 6px 10px; border:1px solid #444; background:#fff; border-radius:6px; cursor:pointer; }
+    .btn:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+
+  <div class="bar">
+    <strong>入札 登録（取扱者）</strong>
+    <span class="muted" id="authStatus">未ログイン</span>
+    <button class="btn" id="btnLogin">ログイン</button>
+    <button class="btn" id="btnLogout" disabled>ログアウト</button>
+    <button class="btn" id="btnReset">再読込</button>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label>入札番号（bidNo）:</label>
+      <input type="text" id="bidNoInput" placeholder="例：2026-001" />
+      <button class="btn" id="btnLoadBid">既存データ読込</button>
+      <button class="btn" id="btnNewBid">新規として開始</button>
+    </div>
+    <div class="muted" id="bidInfo">状態：未選択</div>
+    <div class="error" id="topError"></div>
+    <div class="ok" id="topOk"></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <strong>ヘッダーCSV貼り付け</strong>
+      <span class="muted">（列：入札番号, 宛先1, 宛先2, 宛先3, 入札年月日, 納入場所, 納期, 備考）</span>
+    </div>
+    <textarea id="headerCsv"></textarea>
+    <div class="row">
+      <button class="btn" id="btnParseHeader">解析（プレビュー）</button>
+      <button class="btn" id="btnClearHeader">クリア</button>
+    </div>
+    <div id="headerPreview"></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <strong>品目CSV貼り付け</strong>
+      <span class="muted">（列：入札番号, 一連番号, 見本, 品名, 規格, 予定数量, 単位, 備考）</span>
+    </div>
+    <textarea id="itemsCsv"></textarea>
+    <div class="row">
+      <button class="btn" id="btnParseItems">解析（プレビュー）</button>
+      <button class="btn" id="btnClearItems">クリア</button>
+      <button class="btn" id="btnCheckDup">重複チェック</button>
+    </div>
+    <div class="scrollX" id="itemsPreview"></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button class="btn" id="btnSaveDraft">下書き保存（draft）</button>
+      <button class="btn" id="btnCommit">決定（登録/更新）</button>
+      <button class="btn" id="btnReload">登録内容を表示（読込）</button>
+    </div>
+    <div class="muted" id="actionNote">ログ：なし</div>
+  </div>
+
+  <!-- Firebase SDK（CDN）: あなたのプロジェクトに合わせて必要に応じて変更 -->
+  <!-- ここは「ネットのWEBサーバで実施」前提 -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
+  <!-- アプリJS（順番重要） -->
+  <script src="./js/00_config.js"></script>
+  <script src="./js/01_util.js"></script>
+  <script src="./js/02_auth.js"></script>
+  <script src="./js/03_firestore.js"></script>
+  <script src="./js/05_csv.js"></script>
+  <script src="./js/06_validation.js"></script>
+  <script src="./js/07_state.js"></script>
+  <script src="./js/09_render.js"></script>
+  <script src="./js/10_operator_a.js"></script>
+  <script src="./js/08_ui_bind.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
