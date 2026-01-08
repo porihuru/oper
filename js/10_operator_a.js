@@ -7,9 +7,7 @@
       var rows = APP.CSV.parse(text);
       if (!rows.length) return { error: "ヘッダーCSVが空です。" };
 
-      // 最小：1行目が列名の場合はスキップ（完全判定は後で強化）
       var r0 = rows[0];
-      // 列数が多い/少ないは後で厳密化可能
       var bidNo = r0[0];
       if (bidNo === "入札番号") {
         if (rows.length < 2) return { error: "ヘッダーCSVにデータ行がありません。" };
@@ -63,9 +61,7 @@
         items.push(it);
       }
 
-      // seq 昇順
       items.sort(function (a, b) { return a.seq - b.seq; });
-
       return { items: items };
     },
 
@@ -105,8 +101,6 @@
       APP.State.setActionNote("保存中...");
       return APP.DB.setBid(bidNo, bidDoc)
         .then(function () {
-          // items は bids/{bidNo}/items/{seq}
-          // bidNoフィールドは不要だが、残しても良い。最小版は残す。
           return APP.DB.upsertItemsBatch(bidNo, st.items);
         })
         .then(function () {
@@ -119,7 +113,7 @@
         });
     },
 
-       loadBid: function (bidNo) {
+    loadBid: function (bidNo) {
       APP.State.setMessage("", "");
       if (APP.Util.isEmpty(bidNo)) return APP.State.setMessage("入札番号が空です。", "");
 
@@ -128,6 +122,8 @@
         .then(function (bid) {
           if (!bid) throw new Error("bids/" + bidNo + " が見つかりません。");
           return APP.DB.getItems(bidNo).then(function (items) {
+
+            // ★ここで status も state.header に載せる
             var header = {
               bidNo: bidNo,
               to1: bid.to1 || "",
@@ -136,9 +132,10 @@
               bidDate: bid.bidDate || "",
               deliveryPlace: bid.deliveryPlace || "",
               dueDate: bid.dueDate || "",
-              note: bid.note || ""
-              status: bid.status || ""   // ★追加
+              note: bid.note || "",
+              status: bid.status || ""   // ★追加（カンマ必須）
             };
+
             items.sort(function (a, b) { return Number(a.seq) - Number(b.seq); });
             APP.State.setBidNo(bidNo);
             APP.State.setHeader(header);
@@ -159,45 +156,37 @@
         var st = APP.State.get();
         APP.State.setMessage("", "");
 
-        // すでに同じ状態なら何もしない（Rules拒否/二重クリック対策）
         if (st.header && st.header.status && st.header.status === newStatus) {
           return APP.State.setMessage("", "すでに " + newStatus + " です。");
         }
-        
-        // ログイン確認
-        if (!st.user) return APP.State.setMessage("未ログインです。", "");
 
-        // role確認（operator または admin のみ）
+        if (!st.user) return APP.State.setMessage("未ログインです。", "");
         if (st.role !== "operator" && st.role !== "admin") {
           return APP.State.setMessage("権限がありません（operator/adminのみ）。", "");
         }
 
-        // 入札番号確認
         var bidNo = (st.header && st.header.bidNo) ? st.header.bidNo : st.bidNo;
         if (APP.Util.isEmpty(bidNo)) {
           return APP.State.setMessage("入札番号がありません。先にヘッダー解析または入札番号入力をしてください。", "");
         }
 
-        // newStatus妥当性
         if (newStatus !== "open" && newStatus !== "closed") {
           return APP.State.setMessage("不正な状態です: " + newStatus, "");
         }
 
-       APP.State.setActionNote("状態更新中...");
+        APP.State.setActionNote("状態更新中...");
         return APP.DB.updateBidStatus(bidNo, newStatus)
           .then(function () {
             APP.Util.log("[setBidStatus] updateBidStatus OK");
             APP.State.setActionNote("状態更新完了: " + newStatus);
             APP.State.setMessage("", "状態を更新しました: " + newStatus);
-
-            APP.Util.log("[setBidStatus] loadBid start");
             return APP.OperatorA.loadBid(bidNo);
-        })
+          })
           .catch(function (e) {
-          var msg =
-            (e && e.message) ? e.message :
-            (typeof e === "string") ? e :
-            JSON.stringify(e);
+            var msg =
+              (e && e.message) ? e.message :
+              (typeof e === "string") ? e :
+              JSON.stringify(e);
 
             console.error("[setBidStatus] FAILED:", e);
             APP.Util.log("[setBidStatus] FAILED: " + msg);
@@ -206,19 +195,10 @@
             APP.State.setMessage("状態更新に失敗: " + msg, "");
           });
 
-
-
       } catch (e) {
         APP.State.setMessage("状態更新で例外: " + (e && e.message ? e.message : e), "");
       }
     }
     // ★ここまで追加★
-
   };
 })(window);
-
-
-
-
-
-
