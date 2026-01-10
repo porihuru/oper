@@ -67,7 +67,9 @@
         var it = st.items[i];
         html += '<tr>' +
           '<td>' + it.seq + '</td>' +
-          '<td>' + (it.sample ? "○" : "") + '</td>' +
+          
+          '<td>' + (it.sample ? "〇" : "") + '</td>' +
+
           '<td>' + (it.name || "") + '</td>' +
           '<td>' + (it.spec || "") + '</td>' +
           '<td>' + (it.qty == null ? "" : it.qty) + '</td>' +
@@ -80,4 +82,5 @@
     }
   };
 })(window);
+
 
