@@ -113,21 +113,31 @@
         updatedByUid: st.user.uid
       };
 
-      APP.State.setActionNote("保存中...");
-      return APP.DB.setBid(bidNo, bidDoc)
-        .then(function () {
-          return APP.DB.upsertItemsBatch(bidNo, st.items);
-        })
-        .then(function () {
-          APP.State.setActionNote("保存完了: " + bidNo);
-          APP.State.setMessage("", "保存しました（bids と items）。");
-          // 画面も最新化
-          return APP.OperatorA.loadBid(bidNo);
-        })
-        .catch(function (e) {
-          APP.State.setActionNote("保存失敗");
-          APP.State.setMessage("保存エラー: " + (e && e.message ? e.message : e), "");
-        });
+
+      
+    APP.State.setActionNote("保存中...");
+
+return APP.DB.setBid(bidNo, bidDoc)
+  .then(function () {
+    // ★どこまで通ったか確認するログ
+    APP.Util.log("[commit] setBid OK: bids/" + bidNo);
+    return APP.DB.upsertItemsBatch(bidNo, st.items);
+  })
+  .then(function () {
+    APP.Util.log("[commit] upsertItemsBatch OK: bids/" + bidNo + "/items/*");
+    APP.State.setActionNote("保存完了: " + bidNo);
+    APP.State.setMessage("", "保存しました（bids と items）。");
+    return APP.OperatorA.loadBid(bidNo);
+  })
+  .catch(function (e) {
+    console.error("[commit] FAILED:", e);
+    APP.State.setActionNote("保存失敗");
+    APP.State.setMessage("保存エラー: " + (e && e.message ? e.message : e), "");
+  });
+
+
+
+      
     },
 
     loadBid: function (bidNo) {
@@ -220,3 +230,4 @@
     // ★ここまで追加★
   };
 })(window);
+
