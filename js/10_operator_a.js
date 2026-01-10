@@ -43,8 +43,15 @@
         var r = rows[i];
         var bidNo = APP.Util.trim(r[0] || "");
         var seq = APP.Util.toNumberOrNull(r[1]);
-        var sampleRaw = APP.Util.trim(r[2] || "");
-        var sample = (sampleRaw === "1" || sampleRaw.toLowerCase() === "true" || sampleRaw === "○");
+       
+       var sampleRaw = APP.Util.trim(r[2] || "");
+
+// ★修正★：○/〇/◯/1/true を「見本=true」扱い
+var sr = sampleRaw;
+var sample =
+  (sr === "1") ||
+  (String(sr).toLowerCase() === "true") ||
+  (sr === "○") || (sr === "〇") || (sr === "◯");
 
         var it = {
           bidNo: bidNo,
@@ -202,3 +209,4 @@
     // ★ここまで追加★
   };
 })(window);
+
