@@ -1,4 +1,4 @@
-// [JST 2026-01-07 00] 10_operator_a.js
+// [JST 2026-01-10 00] 10_operator_a.js
 (function (global) {
   var APP = global.APP = global.APP || {};
 
@@ -43,15 +43,15 @@
         var r = rows[i];
         var bidNo = APP.Util.trim(r[0] || "");
         var seq = APP.Util.toNumberOrNull(r[1]);
-       
-       var sampleRaw = APP.Util.trim(r[2] || "");
 
-// ★修正★：○/〇/◯/1/true を「見本=true」扱い
-var sr = sampleRaw;
-var sample =
-  (sr === "1") ||
-  (String(sr).toLowerCase() === "true") ||
-  (sr === "○") || (sr === "〇") || (sr === "◯");
+        var sampleRaw = APP.Util.trim(r[2] || "");
+
+        // ★修正★：○/〇/◯/1/true を「見本=true」扱い
+        var sr = sampleRaw;
+        var sample =
+          (sr === "1") ||
+          (String(sr).toLowerCase() === "true") ||
+          (sr === "○") || (sr === "〇") || (sr === "◯");
 
         var it = {
           bidNo: bidNo,
@@ -91,6 +91,11 @@ var sample =
 
       var bidNo = st.header.bidNo;
 
+      // ★重要修正★：status を固定で上書きしない
+      // - loadBid 済みなら st.header.status に現在の status が入っている
+      // - 新規（まだ status 不明）のときだけ default(draft) を使う
+      var currentStatus = (st.header && st.header.status) ? st.header.status : null;
+
       var bidDoc = {
         bidNo: bidNo,
         to1: st.header.to1,
@@ -100,7 +105,10 @@ var sample =
         deliveryPlace: st.header.deliveryPlace,
         dueDate: st.header.dueDate,
         note: st.header.note,
-        status: APP.CONFIG.bidDefaults.status,
+
+        // ★ここがポイント★
+        status: currentStatus || APP.CONFIG.bidDefaults.status,
+
         updatedAt: APP.Util.nowIso(),
         updatedByUid: st.user.uid
       };
@@ -113,6 +121,8 @@ var sample =
         .then(function () {
           APP.State.setActionNote("保存完了: " + bidNo);
           APP.State.setMessage("", "保存しました（bids と items）。");
+          // 画面も最新化
+          return APP.OperatorA.loadBid(bidNo);
         })
         .catch(function (e) {
           APP.State.setActionNote("保存失敗");
@@ -163,6 +173,7 @@ var sample =
         var st = APP.State.get();
         APP.State.setMessage("", "");
 
+        // すでに同じ状態なら何もしない（Rules拒否/二重クリック対策）
         if (st.header && st.header.status && st.header.status === newStatus) {
           return APP.State.setMessage("", "すでに " + newStatus + " です。");
         }
@@ -209,4 +220,3 @@ var sample =
     // ★ここまで追加★
   };
 })(window);
-
