@@ -1,106 +1,182 @@
-<!-- [JST 2026-01-07 00] index.html -->
+<!-- [01] ファイル開始: index.html - 入札 登録（取扱者）画面
+     注意: このファイルは静的HTML+外部JSで動作します。後で修正する際は
+     各ブロックに付けた番号コメントを参照してください。 -->
 <!doctype html>
 <html lang="ja">
 <head>
+  <!-- [02] 文字エンコーディングとレスポンシブ設定 -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- [03] ページタイトル（ブラウザタブ表示） -->
   <title>入札 登録（取扱者）</title>
+
+  <!-- [04] インラインCSS（軽微なレイアウトと見た目） -->
+  <!-- 変更点: レイアウト調整やクラス名変更はここを見れば分かるように -->
   <style>
+    /* [04-1] 全体フォントと余白 */
     body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; margin: 12px; }
+
+    /* [04-2] 上部バー（ログイン・操作ボタン等） */
     .bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+    /* [04-3] カード（各機能ブロックの共通スタイル） */
     .card { border: 1px solid #ccc; border-radius: 8px; padding: 10px; margin-top: 10px; }
+
+    /* [04-4] 入力コントロール */
     textarea { width: 100%; height: 140px; }
     input[type="text"] { width: 360px; }
+
+    /* [04-5] レイアウトユーティリティ */
     .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+    /* [04-6] テキスト状態スタイル */
     .muted { color:#666; }
     .error { color:#b00020; font-weight: 600; }
     .ok { color:#0a7a2f; font-weight: 600; }
+
+    /* [04-7] テーブル見た目 */
     table { border-collapse: collapse; width: 100%; }
     th, td { border:1px solid #ddd; padding: 6px; vertical-align: top; }
     th { background:#f7f7f7; }
+
+    /* [04-8] 横スクロール領域（品目プレビュー用） */
     .scrollX { overflow-x:auto; }
+
+    /* [04-9] ボタン共通 */
     .btn { padding: 6px 10px; border:1px solid #444; background:#fff; border-radius:6px; cursor:pointer; }
     .btn:active { transform: translateY(1px); }
   </style>
 </head>
 <body>
 
+  <!-- [05] 上部操作バー（認証・メール・再読込等） -->
+  <!-- [05-注] 各要素のIDはJS連携で使われます。IDを変更するとバインド処理も修正が必要です。 -->
   <div class="bar">
-  <strong>入札 登録（取扱者）</strong>
-  <span class="muted" id="authStatus">未ログイン</span>
+    <!-- [05-1] ページタイトル（小見出し） -->
+    <strong>入札 登録（取扱者）</strong>
 
-  <label class="muted">メール</label>
-  <input type="text" id="emailInput" placeholder="opr@pss.pss" />
+    <!-- [05-2] 認証状態表示（未ログイン/ユーザー名など） -->
+    <span class="muted" id="authStatus">未ログイン</span>
 
-  <label class="muted">パスワード</label>
-  <input type="password" id="passInput" placeholder="********" />
+    <!-- [05-3] 認証用メール入力 -->
+    <label class="muted">メール</label>
+    <input type="text" id="emailInput" placeholder="opr@pss.pss" />
 
-  <button class="btn" id="btnLogin">ログイン</button>
-  <button class="btn" id="btnLogout" disabled>ログアウト</button>
-  <button class="btn" id="btnReset">再読込</button>
-</div>
+    <!-- [05-4] パスワード入力 -->
+    <label class="muted">パスワード</label>
+    <input type="password" id="passInput" placeholder="********" />
 
+    <!-- [05-5] ログイン/ログアウト/再読込 操作ボタン -->
+    <!-- 各ボタンは js/02_auth.js や js/08_ui_bind.js でイベントハンドラが付与されます -->
+    <button class="btn" id="btnLogin">ログイン</button>
+    <button class="btn" id="btnLogout" disabled>ログアウト</button>
+    <button class="btn" id="btnReset">再読込</button>
+  </div>
+
+  <!-- [06] 入札番号（bidNo）操作ブロック -->
   <div class="card">
     <div class="row">
+      <!-- [06-1] bidNo 入力 -->
       <label>入札番号（bidNo）:</label>
       <input type="text" id="bidNoInput" placeholder="例：2026-001" />
+
+      <!-- [06-2] 既存データ読込 / 新規開始 ボタン -->
       <button class="btn" id="btnLoadBid">既存データ読込</button>
       <button class="btn" id="btnNewBid">新規として開始</button>
     </div>
+
+    <!-- [06-3] 選択中の入札情報表示（状態表示）-->
     <div class="muted" id="bidInfo">状態：未選択</div>
+
+    <!-- [06-4] エラー/正常メッセージ領域 -->
     <div class="error" id="topError"></div>
     <div class="ok" id="topOk"></div>
   </div>
 
+  <!-- [07] ヘッダーCSV貼り付け領域
+       役割: 入札単位のメタ情報（宛先、入札日、納入場所等）を貼る -->
   <div class="card">
     <div class="row">
       <strong>ヘッダーCSV貼り付け</strong>
       <span class="muted">（列：入札番号, 宛先1, 宛先2, 宛先3, 入札年月日, 納入場所, 納期, 備考）</span>
     </div>
+
+    <!-- [07-1] CSV貼り付け用 textarea（複数行） -->
     <textarea id="headerCsv"></textarea>
+
     <div class="row">
+      <!-- [07-2] 解析（プレビュー） / クリア 操作 -->
       <button class="btn" id="btnParseHeader">解析（プレビュー）</button>
       <button class="btn" id="btnClearHeader">クリア</button>
     </div>
+
+    <!-- [07-3] 解析プレビュー領域。js/05_csv.js 等でレンダリングされます -->
     <div id="headerPreview"></div>
   </div>
 
+  <!-- [08] 品目CSV貼り付け領域
+       役割: 品目行データ（品名、数量、単位など）を貼って解析 -->
   <div class="card">
     <div class="row">
       <strong>品目CSV貼り付け</strong>
       <span class="muted">（列：入札番号, 一連番号, 見本, 品名, 規格, 予定数量, 単位, 備考）</span>
     </div>
+
+    <!-- [08-1] 品目CSV用 textarea -->
     <textarea id="itemsCsv"></textarea>
+
     <div class="row">
+      <!-- [08-2] 品目解析 / クリア / 重複チェック 操作 -->
       <button class="btn" id="btnParseItems">解析（プレビュー）</button>
       <button class="btn" id="btnClearItems">クリア</button>
       <button class="btn" id="btnCheckDup">重複チェック</button>
     </div>
+
+    <!-- [08-3] プレビューはテーブルになる可能性があるため横スクロール対応 -->
     <div class="scrollX" id="itemsPreview"></div>
   </div>
 
+  <!-- [09] アクション（保存・登録・表示） -->
   <div class="card">
     <div class="row">
+      <!-- [09-1] 下書き保存（draft） / 決定（登録/更新） / 登録内容を表示（読込） -->
       <button class="btn" id="btnSaveDraft">下書き保存（draft）</button>
       <button class="btn" id="btnCommit">決定（登録/更新）</button>
       <button class="btn" id="btnReload">登録内容を表示（読込）</button>
 
+      <!-- [09-2] 入札開始 / 入札終了 ボタン（元々追加されている箇所） -->
+      <!-- 各ボタンの動作: js/10_operator_a.js 等で処理。公開/非公開フラグや状態更新を行う想定 -->
       <!-- ★これを追加★ -->
       <button class="btn" id="btnOpenBid">入札開始</button>
       <button class="btn" id="btnCloseBid">入札終了</button>
       <!-- ★ここまで追加★ -->
-      
     </div>
+
+    <!-- [09-3] 操作ログ/ノート表示 -->
     <div class="muted" id="actionNote">ログ：なし</div>
   </div>
 
-  <!-- Firebase SDK（CDN）: あなたのプロジェクトに合わせて必要に応じて変更 -->
+  <!-- [10] Firebase SDK（CDN）
+       [10-注] 使用している compat ビルドは互換性向けです。将来的なバージョン更新時は
+       モジュール版(ESM)に移行することを検討してください。バージョンはスクリプトURL内に表記。 -->
   <!-- ここは「ネットのWEBサーバで実施」前提 -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  <!-- アプリJS（順番重要） -->
+  <!-- [11] アプリ固有のJSファイル（読み込み順が重要）
+       - 00_config: Firebase 設定や定数
+       - 01_util: ユーティリティ関数
+       - 02_auth: 認証ロジック（ログイン/ログアウト）
+       - 03_firestore: Firestore 讀取/書込ラッパー
+       - 05_csv: CSV解析ロジック
+       - 06_validation: 入力検証
+       - 07_state: クライアント状態管理
+       - 09_render: DOMレンダリング用ヘルパ
+       - 10_operator_a: 取扱者向け操作（入札状態変更等）
+       - 08_ui_bind: UI とイベントを結びつける（IDのバインド）
+       - app.js: エントリポイント（初期化）
+       読み込み順は依存関係に沿って整えています。ファイルを差し替える場合は順序も確認してください。 -->
  <script src="./js/00_config.js"></script>
 <script src="./js/01_util.js"></script>
 <script src="./js/02_auth.js"></script>
@@ -118,6 +194,3 @@
 
 </body>
 </html>
-
-
-
