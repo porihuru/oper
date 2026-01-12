@@ -1,8 +1,30 @@
-// [JST 2026-01-07 00] 10_operator_a.js
+// [JST 2026-01-12 10:xx] 10_operator_a.js
+// ============================================================
+// 取扱者（OperatorA）画面ロジック
+// ------------------------------------------------------------
+// [OP-A-00] 目的:
+//   - ヘッダーCSV / 品目CSV の解析
+//   - 「決定（登録/更新）」で bids と items を保存
+//   - 状態変更（draft→open→closed）
+//   - 画面に「現在の入札状態」を常に表示（メッセージ欄＋ログ欄）
+// ------------------------------------------------------------
+// [OP-A-01] 修正方針（後で直しやすいように番号付け）:
+//   - [OP-A-20] showBidStatus() を追加（状態の常時表示の核）
+//   - [OP-A-40] commit() で「決定押下」「保存中止」時に必ず状態表示
+//   - [OP-A-50] loadBid() で「読込」時に必ず状態表示
+//   - [OP-A-60] setBidStatus() で「状態変更」時に必ず状態表示
+// ============================================================
+
 (function (global) {
   var APP = global.APP = global.APP || {};
 
   APP.OperatorA = {
+
+    // ============================================================
+    // [OP-A-10] ヘッダーCSV解析
+    //   - 1行目が見出し（入札番号）なら2行目を採用
+    //   - bidNo 必須チェック
+    // ============================================================
     parseHeaderCsv: function (text) {
       var rows = APP.CSV.parse(text);
       if (!rows.length) return { error: "ヘッダーCSVが空です。" };
@@ -31,6 +53,12 @@
       return { header: header };
     },
 
+    // ============================================================
+    // [OP-A-11] 品目CSV解析
+    //   - 見本列: ○/〇/◯/1/true を true 扱い
+    //   - seq（1連番号）必須・数値チェック
+    //   - seq昇順ソート
+    // ============================================================
     parseItemsCsv: function (text) {
       var rows = APP.CSV.parse(text);
       if (!rows.length) return { error: "品目CSVが空です。" };
@@ -46,7 +74,7 @@
 
         var sampleRaw = APP.Util.trim(r[2] || "");
 
-        // ★修正★：○/〇/◯/1/true を「見本=true」扱い
+        // [OP-A-11-1] ○/〇/◯/1/true を「見本=true」扱い
         var sr = sampleRaw;
         var sample =
           (sr === "1") ||
@@ -73,30 +101,44 @@
       return { items: items };
     },
 
+    // ============================================================
+    // [OP-A-20] 現在の入札状態を「常に」表示（メッセージ欄＋ログ欄）
+    //   - 表示場所①: APP.State.setMessage("", "...") の場所
+    //   - 表示場所②: APP.Util.log("...") のログ欄
+    // ------------------------------------------------------------
+    // 引数:
+    //   bidNo  : 入札番号（表示用）
+    //   status : "draft" / "open" / "closed"（表示用）
+    //   reason : "読込" / "決定押下" / "保存中止" / "状態変更" 等
+    // ============================================================
+    showBidStatus: function (bidNo, status, reason) {
+      var s = status || "(不明)";
+      var r = reason ? (" / " + reason) : "";
 
-// ★追加★：現在の入札状態を常に表示（メッセージ欄＋ログ欄）
-showBidStatus: function (bidNo, status, reason) {
-  var s = status || "(不明)";
-  var r = reason ? (" / " + reason) : "";
+      // [OP-A-20-1] メッセージ欄に常時表示（他メッセージで上書きされる点は仕様）
+      APP.State.setMessage(
+        "",
+        "現在の入札状態： " + s +
+        "（draft=編集中 / open=入札中 / closed=終了）" +
+        (bidNo ? (" / bidNo=" + bidNo) : "") +
+        r
+      );
 
-  // メッセージ表示欄（いま「保存できません…」が出ている場所）
-  APP.State.setMessage(
-    "",
-    "現在の入札状態： " + s +
-    "（draft=編集中 / open=入札中 / closed=終了）" +
-    (bidNo ? (" / bidNo=" + bidNo) : "") +
-    r
-  );
+      // [OP-A-20-2] ログ欄にも必ず残す（保存中止などの追跡用）
+      APP.Util.log(
+        "[status] " + (bidNo ? bidNo : "-") + " status=" + s + (reason ? (" (" + reason + ")") : "")
+      );
+    },
 
-  // ログ欄（「ログ：保存中止」が出る場所）
-  APP.Util.log(
-    "[status] " + (bidNo ? bidNo : "-") + " status=" + s + (reason ? (" (" + reason + ")") : "")
-  );
-},
-
-
-    
-
+    // ============================================================
+    // [OP-A-40] 決定（登録/更新）
+    //   - 事前チェック（ログイン/権限/ヘッダー/品目/番号一致/重複）
+    //   - 既存bids/{bidNo} を取得して status を確認
+    //   - operator は draft の間だけ更新可能（open/closed は中止）
+    //   - status は勝手に変えない（既存は維持 / 新規はデフォルト）
+    //   - bids 保存 → items 一括 upsert
+    //   - ここで「現在状態」を必ず表示（決定押下 / 保存中止）
+    // ============================================================
     commit: function () {
       var st = APP.State.get();
       APP.State.setMessage("", "");
@@ -118,34 +160,34 @@ showBidStatus: function (bidNo, status, reason) {
 
       APP.State.setActionNote("保存準備中...");
 
-      // ★重要：既存bidの status を確認して「open/closedならoperator更新不可」を先に止める
+      // [OP-A-40-1] 既存bidを取得して、status と存在有無を確認
       return APP.DB.getBid(bidNo)
         .then(function (existing) {
           var exists = !!existing;
           var currentStatus = exists ? (existing.status || "") : "";
 
-// ★追加★：決定ボタン押下時に現在状態を常に表示（存在しない場合は新規扱い）
-APP.OperatorA.showBidStatus(bidNo, exists ? currentStatus : "draft", "決定押下");
-          
+          // [OP-A-40-2] 「決定押下」時点で現在状態を必ず表示
+          APP.OperatorA.showBidStatus(bidNo, exists ? currentStatus : "draft", "決定押下");
 
-          // operatorは draft の間だけ更新可能（ルールに合わせてUI側も合わせる）
+          // [OP-A-40-3] operator は draft の間だけ更新可能
           if (st.role === "operator" && exists && currentStatus !== "draft") {
-            // ★追加★：保存中止の理由をログにも明示（「ログ：保存中止」対策）
-  APP.OperatorA.showBidStatus(bidNo, currentStatus, "保存中止");
+            // [OP-A-40-3a] 保存中止理由を「常に」表示（メッセージ欄＋ログ欄）
+            APP.OperatorA.showBidStatus(bidNo, currentStatus, "保存中止");
 
-  APP.State.setActionNote("保存中止（status=" + currentStatus + "）");
-  return APP.State.setMessage(
+            APP.State.setActionNote("保存中止（status=" + currentStatus + "）");
+            return APP.State.setMessage(
               "保存できません：入札が draft ではありません（status=" + currentStatus + "）。\n" +
               "入札開始(open)/終了(closed)後は、取扱者は更新できない仕様です。",
               ""
             );
           }
 
-          // ★statusは commit で勝手に変えない：既存があれば維持。新規のみデフォルト(draft)を入れる
+          // [OP-A-40-4] status は commit で勝手に変えない（既存は維持 / 新規はデフォルト）
           var statusToWrite = exists
             ? (existing.status || APP.CONFIG.bidDefaults.status)
             : APP.CONFIG.bidDefaults.status;
 
+          // [OP-A-40-5] bids に保存するドキュメント（ヘッダー＋状態＋更新者）
           var bidDoc = {
             bidNo: bidNo,
             to1: st.header.to1,
@@ -156,14 +198,14 @@ APP.OperatorA.showBidStatus(bidNo, exists ? currentStatus : "draft", "決定押�
             dueDate: st.header.dueDate,
             note: st.header.note,
 
-            // ★ここがポイント
-            status: statusToWrite,
-
+            status: statusToWrite,               // ★ポイント：draft維持でも許可されるルールに修正済み
             updatedAt: APP.Util.nowIso(),
             updatedByUid: st.user.uid
           };
 
           APP.State.setActionNote("保存中...");
+
+          // [OP-A-40-6] bids 保存 → items 一括 upsert
           return APP.DB.setBid(bidNo, bidDoc)
             .then(function () {
               return APP.DB.upsertItemsBatch(bidNo, st.items);
@@ -171,19 +213,24 @@ APP.OperatorA.showBidStatus(bidNo, exists ? currentStatus : "draft", "決定押�
             .then(function () {
               APP.State.setActionNote("保存完了: " + bidNo);
               APP.State.setMessage("", "保存しました（bids と items）。");
-              // state.header.status を最新化（表示の整合用）
+
+              // [OP-A-40-7] state.header.status を最新化（表示の整合用）
               var latest = APP.State.get();
               if (latest.header) {
                 latest.header.status = statusToWrite;
                 APP.State.setHeader(latest.header);
               }
+
+              // [OP-A-40-8] 保存完了後も「現在状態」を残したい場合はここで再表示してもよい
+              // ただし、直後の setMessage() と競合するため、必要なら以下を有効化してください。
+              // APP.OperatorA.showBidStatus(bidNo, statusToWrite, "保存完了");
             });
         })
         .catch(function (e) {
           var msg =
             (e && e.message) ? e.message :
-            (typeof e === "string") ? e :
-            JSON.stringify(e);
+              (typeof e === "string") ? e :
+                JSON.stringify(e);
 
           console.error("[commit] FAILED:", e);
           APP.State.setActionNote("保存失敗");
@@ -191,6 +238,13 @@ APP.OperatorA.showBidStatus(bidNo, exists ? currentStatus : "draft", "決定押�
         });
     },
 
+    // ============================================================
+    // [OP-A-50] 入札読込（bids + items）
+    //   - bids/{bidNo} を取得
+    //   - items を取得
+    //   - state に反映
+    //   - 読込時に「現在状態」を必ず表示
+    // ============================================================
     loadBid: function (bidNo) {
       APP.State.setMessage("", "");
       if (APP.Util.isEmpty(bidNo)) return APP.State.setMessage("入札番号が空です。", "");
@@ -200,6 +254,8 @@ APP.OperatorA.showBidStatus(bidNo, exists ? currentStatus : "draft", "決定押�
         .then(function (bid) {
           if (!bid) throw new Error("bids/" + bidNo + " が見つかりません。");
           return APP.DB.getItems(bidNo).then(function (items) {
+
+            // [OP-A-50-1] state に入れる header を構築
             var header = {
               bidNo: bidNo,
               to1: bid.to1 || "",
@@ -209,13 +265,11 @@ APP.OperatorA.showBidStatus(bidNo, exists ? currentStatus : "draft", "決定押�
               deliveryPlace: bid.deliveryPlace || "",
               dueDate: bid.dueDate || "",
               note: bid.note || "",
-              status: bid.status || ""   // ★追加
-
-// ★追加★：読込時に現在状態を常に表示
-APP.OperatorA.showBidStatus(bidNo, header.status, "読込");
-
-              
+              status: bid.status || ""   // ★status を保持
             };
+
+            // [OP-A-50-2] 読込時に「現在状態」を必ず表示（※オブジェクトの外で呼ぶのが正しい）
+            APP.OperatorA.showBidStatus(bidNo, header.status, "読込");
 
             items.sort(function (a, b) { return Number(a.seq) - Number(b.seq); });
             APP.State.setBidNo(bidNo);
@@ -231,49 +285,59 @@ APP.OperatorA.showBidStatus(bidNo, header.status, "読込");
         });
     },
 
-    // 入札の状態を変更（draft→open→closed）
+    // ============================================================
+    // [OP-A-60] 入札の状態を変更（draft→open→closed）
+    //   - newStatus は open または closed のみ許可
+    //   - 状態変更成功時に「現在状態」を必ず表示
+    // ============================================================
     setBidStatus: function (newStatus) {
       try {
         var st = APP.State.get();
         APP.State.setMessage("", "");
 
+        // [OP-A-60-1] すでに同じ状態なら終了
         if (st.header && st.header.status && st.header.status === newStatus) {
           return APP.State.setMessage("", "すでに " + newStatus + " です。");
         }
 
+        // [OP-A-60-2] 権限チェック
         if (!st.user) return APP.State.setMessage("未ログインです。", "");
         if (st.role !== "operator" && st.role !== "admin") {
           return APP.State.setMessage("権限がありません（operator/adminのみ）。", "");
         }
 
+        // [OP-A-60-3] bidNo 取得
         var bidNo = (st.header && st.header.bidNo) ? st.header.bidNo : st.bidNo;
         if (APP.Util.isEmpty(bidNo)) {
           return APP.State.setMessage("入札番号がありません。先にヘッダー解析または入札番号入力をしてください。", "");
         }
 
+        // [OP-A-60-4] newStatus 検証
         if (newStatus !== "open" && newStatus !== "closed") {
           return APP.State.setMessage("不正な状態です: " + newStatus, "");
         }
 
         APP.State.setActionNote("状態更新中...");
+
+        // [OP-A-60-5] Firestore 更新
         return APP.DB.updateBidStatus(bidNo, newStatus)
           .then(function () {
             APP.Util.log("[setBidStatus] updateBidStatus OK");
             APP.State.setActionNote("状態更新完了: " + newStatus);
-           
-          // ★追加★：状態変更後も必ず表示（loadBidでも表示されるが先に即時表示）
-APP.OperatorA.showBidStatus(bidNo, newStatus, "状態変更");
 
-APP.State.setMessage("", "状態を更新しました: " + newStatus);
-return APP.OperatorA.loadBid(bidNo);
+            // [OP-A-60-6] 状態変更直後に必ず表示（loadBidでも再表示される）
+            APP.OperatorA.showBidStatus(bidNo, newStatus, "状態変更");
 
-          
+            APP.State.setMessage("", "状態を更新しました: " + newStatus);
+
+            // [OP-A-60-7] 再読込して画面の整合を取る
+            return APP.OperatorA.loadBid(bidNo);
           })
           .catch(function (e) {
             var msg =
               (e && e.message) ? e.message :
-              (typeof e === "string") ? e :
-              JSON.stringify(e);
+                (typeof e === "string") ? e :
+                  JSON.stringify(e);
 
             console.error("[setBidStatus] FAILED:", e);
             APP.Util.log("[setBidStatus] FAILED: " + msg);
@@ -288,4 +352,3 @@ return APP.OperatorA.loadBid(bidNo);
     }
   };
 })(window);
-
