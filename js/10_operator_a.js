@@ -1,4 +1,4 @@
-// [JST 2026-01-10 00] 10_operator_a.js
+// [JST 2026-01-07 00] 10_operator_a.js
 (function (global) {
   var APP = global.APP = global.APP || {};
 
@@ -64,6 +64,7 @@
           note: APP.Util.trim(r[7] || ""),
           updatedAt: APP.Util.nowIso()
         };
+
         if (it.seq == null) return { error: "一連番号（seq）が数値ではありません（行 " + (i + 1) + "）。" };
         items.push(it);
       }
@@ -91,53 +92,72 @@
 
       var bidNo = st.header.bidNo;
 
-      // ★重要修正★：status を固定で上書きしない
-      // - loadBid 済みなら st.header.status に現在の status が入っている
-      // - 新規（まだ status 不明）のときだけ default(draft) を使う
-      var currentStatus = (st.header && st.header.status) ? st.header.status : null;
+      APP.State.setActionNote("保存準備中...");
 
-      var bidDoc = {
-        bidNo: bidNo,
-        to1: st.header.to1,
-        to2: st.header.to2,
-        to3: st.header.to3,
-        bidDate: st.header.bidDate,
-        deliveryPlace: st.header.deliveryPlace,
-        dueDate: st.header.dueDate,
-        note: st.header.note,
+      // ★重要：既存bidの status を確認して「open/closedならoperator更新不可」を先に止める
+      return APP.DB.getBid(bidNo)
+        .then(function (existing) {
+          var exists = !!existing;
+          var currentStatus = exists ? (existing.status || "") : "";
 
-        // ★ここがポイント★
-        status: currentStatus || APP.CONFIG.bidDefaults.status,
+          // operatorは draft の間だけ更新可能（ルールに合わせてUI側も合わせる）
+          if (st.role === "operator" && exists && currentStatus !== "draft") {
+            APP.State.setActionNote("保存中止");
+            return APP.State.setMessage(
+              "保存できません：入札が draft ではありません（status=" + currentStatus + "）。\n" +
+              "入札開始(open)/終了(closed)後は、取扱者は更新できない仕様です。",
+              ""
+            );
+          }
 
-        updatedAt: APP.Util.nowIso(),
-        updatedByUid: st.user.uid
-      };
+          // ★statusは commit で勝手に変えない：既存があれば維持。新規のみデフォルト(draft)を入れる
+          var statusToWrite = exists
+            ? (existing.status || APP.CONFIG.bidDefaults.status)
+            : APP.CONFIG.bidDefaults.status;
 
+          var bidDoc = {
+            bidNo: bidNo,
+            to1: st.header.to1,
+            to2: st.header.to2,
+            to3: st.header.to3,
+            bidDate: st.header.bidDate,
+            deliveryPlace: st.header.deliveryPlace,
+            dueDate: st.header.dueDate,
+            note: st.header.note,
 
-      
-    APP.State.setActionNote("保存中...");
+            // ★ここがポイント
+            status: statusToWrite,
 
-return APP.DB.setBid(bidNo, bidDoc)
-  .then(function () {
-    // ★どこまで通ったか確認するログ
-    APP.Util.log("[commit] setBid OK: bids/" + bidNo);
-    return APP.DB.upsertItemsBatch(bidNo, st.items);
-  })
-  .then(function () {
-    APP.Util.log("[commit] upsertItemsBatch OK: bids/" + bidNo + "/items/*");
-    APP.State.setActionNote("保存完了: " + bidNo);
-    APP.State.setMessage("", "保存しました（bids と items）。");
-    return APP.OperatorA.loadBid(bidNo);
-  })
-  .catch(function (e) {
-    console.error("[commit] FAILED:", e);
-    APP.State.setActionNote("保存失敗");
-    APP.State.setMessage("保存エラー: " + (e && e.message ? e.message : e), "");
-  });
+            updatedAt: APP.Util.nowIso(),
+            updatedByUid: st.user.uid
+          };
 
+          APP.State.setActionNote("保存中...");
+          return APP.DB.setBid(bidNo, bidDoc)
+            .then(function () {
+              return APP.DB.upsertItemsBatch(bidNo, st.items);
+            })
+            .then(function () {
+              APP.State.setActionNote("保存完了: " + bidNo);
+              APP.State.setMessage("", "保存しました（bids と items）。");
+              // state.header.status を最新化（表示の整合用）
+              var latest = APP.State.get();
+              if (latest.header) {
+                latest.header.status = statusToWrite;
+                APP.State.setHeader(latest.header);
+              }
+            });
+        })
+        .catch(function (e) {
+          var msg =
+            (e && e.message) ? e.message :
+            (typeof e === "string") ? e :
+            JSON.stringify(e);
 
-
-      
+          console.error("[commit] FAILED:", e);
+          APP.State.setActionNote("保存失敗");
+          APP.State.setMessage("保存エラー: " + msg, "");
+        });
     },
 
     loadBid: function (bidNo) {
@@ -149,8 +169,6 @@ return APP.DB.setBid(bidNo, bidDoc)
         .then(function (bid) {
           if (!bid) throw new Error("bids/" + bidNo + " が見つかりません。");
           return APP.DB.getItems(bidNo).then(function (items) {
-
-            // ★ここで status も state.header に載せる
             var header = {
               bidNo: bidNo,
               to1: bid.to1 || "",
@@ -160,7 +178,7 @@ return APP.DB.setBid(bidNo, bidDoc)
               deliveryPlace: bid.deliveryPlace || "",
               dueDate: bid.dueDate || "",
               note: bid.note || "",
-              status: bid.status || ""   // ★追加（カンマ必須）
+              status: bid.status || ""   // ★追加
             };
 
             items.sort(function (a, b) { return Number(a.seq) - Number(b.seq); });
@@ -177,13 +195,12 @@ return APP.DB.setBid(bidNo, bidDoc)
         });
     },
 
-    // ★これを追加★：入札の状態を変更（draft→open→closed）
+    // 入札の状態を変更（draft→open→closed）
     setBidStatus: function (newStatus) {
       try {
         var st = APP.State.get();
         APP.State.setMessage("", "");
 
-        // すでに同じ状態なら何もしない（Rules拒否/二重クリック対策）
         if (st.header && st.header.status && st.header.status === newStatus) {
           return APP.State.setMessage("", "すでに " + newStatus + " です。");
         }
@@ -227,7 +244,5 @@ return APP.DB.setBid(bidNo, bidDoc)
         APP.State.setMessage("状態更新で例外: " + (e && e.message ? e.message : e), "");
       }
     }
-    // ★ここまで追加★
   };
 })(window);
-
