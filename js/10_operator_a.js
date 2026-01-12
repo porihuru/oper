@@ -277,6 +277,14 @@ initStatusBanner: function () {
     // ============================================================
     loadBid: function (bidNo) {
       APP.State.setMessage("", "");
+
+  // ★追加★：読込ボタン押下直後に、即時ステータス表示（まだ未取得なので「取得中」）
+  // 表示場所①：メッセージ欄（状態表示）
+  // 表示場所②：ログ欄
+  if (!APP.Util.isEmpty(bidNo)) {
+    APP.OperatorA.showBidStatus(bidNo, "取得中...", "既存データ読込（開始）");
+  }
+      
       if (APP.Util.isEmpty(bidNo)) return APP.State.setMessage("入札番号が空です。", "");
 
       APP.State.setActionNote("読込中...");
@@ -396,4 +404,5 @@ setTimeout(function () {
 
   
 })(window);
+
 
