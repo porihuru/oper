@@ -130,6 +130,36 @@
       );
     },
 
+// ============================================================
+// [OP-A-21] 初期表示（ページ起動直後）
+//   - まだ bidNo を読込していない状態でも、ユーザーに現在状況を提示する
+//   - 表示場所①（メッセージ欄）と表示場所②（ログ欄）の両方に出す
+// ============================================================
+initStatusBanner: function () {
+  try {
+    var st = APP.State.get();
+
+    // bidNo / status が分かっていれば表示、無ければ「未読込」を表示
+    var bidNo = (st && st.header && st.header.bidNo) ? st.header.bidNo : (st && st.bidNo ? st.bidNo : "");
+    var status = (st && st.header && st.header.status) ? st.header.status : "";
+
+    if (bidNo && status) {
+      APP.OperatorA.showBidStatus(bidNo, status, "初期表示");
+    } else if (bidNo && !status) {
+      APP.OperatorA.showBidStatus(bidNo, "(状態未取得)", "初期表示");
+    } else {
+      APP.OperatorA.showBidStatus("", "未読込", "初期表示（入札番号未設定）");
+    }
+  } catch (e) {
+    // 初期表示で例外が出ても動作を止めない
+    if (APP && APP.Util && APP.Util.log) APP.Util.log("[initStatusBanner] EX: " + (e && e.message ? e.message : e));
+  }
+},
+
+
+
+    
+
     // ============================================================
     // [OP-A-40] 決定（登録/更新）
     //   - 事前チェック（ログイン/権限/ヘッダー/品目/番号一致/重複）
@@ -351,4 +381,19 @@
       }
     }
   };
+
+
+// ============================================================
+// [OP-A-90] 起動時：最初に「現在状況」を必ず表示
+//   - DOM や他JSの初期化順の影響を避けるため setTimeout で1tick遅延
+// ============================================================
+setTimeout(function () {
+  if (window.APP && window.APP.OperatorA && typeof window.APP.OperatorA.initStatusBanner === "function") {
+    window.APP.OperatorA.initStatusBanner();
+  }
+}, 0);
+
+
+  
 })(window);
+
