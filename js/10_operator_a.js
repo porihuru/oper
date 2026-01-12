@@ -73,6 +73,30 @@
       return { items: items };
     },
 
+
+// ★追加★：現在の入札状態を常に表示（メッセージ欄＋ログ欄）
+showBidStatus: function (bidNo, status, reason) {
+  var s = status || "(不明)";
+  var r = reason ? (" / " + reason) : "";
+
+  // メッセージ表示欄（いま「保存できません…」が出ている場所）
+  APP.State.setMessage(
+    "",
+    "現在の入札状態： " + s +
+    "（draft=編集中 / open=入札中 / closed=終了）" +
+    (bidNo ? (" / bidNo=" + bidNo) : "") +
+    r
+  );
+
+  // ログ欄（「ログ：保存中止」が出る場所）
+  APP.Util.log(
+    "[status] " + (bidNo ? bidNo : "-") + " status=" + s + (reason ? (" (" + reason + ")") : "")
+  );
+},
+
+
+    
+
     commit: function () {
       var st = APP.State.get();
       APP.State.setMessage("", "");
@@ -100,10 +124,17 @@
           var exists = !!existing;
           var currentStatus = exists ? (existing.status || "") : "";
 
+// ★追加★：決定ボタン押下時に現在状態を常に表示（存在しない場合は新規扱い）
+APP.OperatorA.showBidStatus(bidNo, exists ? currentStatus : "draft", "決定押下");
+          
+
           // operatorは draft の間だけ更新可能（ルールに合わせてUI側も合わせる）
           if (st.role === "operator" && exists && currentStatus !== "draft") {
-            APP.State.setActionNote("保存中止");
-            return APP.State.setMessage(
+            // ★追加★：保存中止の理由をログにも明示（「ログ：保存中止」対策）
+  APP.OperatorA.showBidStatus(bidNo, currentStatus, "保存中止");
+
+  APP.State.setActionNote("保存中止（status=" + currentStatus + "）");
+  return APP.State.setMessage(
               "保存できません：入札が draft ではありません（status=" + currentStatus + "）。\n" +
               "入札開始(open)/終了(closed)後は、取扱者は更新できない仕様です。",
               ""
@@ -179,6 +210,11 @@
               dueDate: bid.dueDate || "",
               note: bid.note || "",
               status: bid.status || ""   // ★追加
+
+// ★追加★：読込時に現在状態を常に表示
+APP.OperatorA.showBidStatus(bidNo, header.status, "読込");
+
+              
             };
 
             items.sort(function (a, b) { return Number(a.seq) - Number(b.seq); });
@@ -224,8 +260,14 @@
           .then(function () {
             APP.Util.log("[setBidStatus] updateBidStatus OK");
             APP.State.setActionNote("状態更新完了: " + newStatus);
-            APP.State.setMessage("", "状態を更新しました: " + newStatus);
-            return APP.OperatorA.loadBid(bidNo);
+           
+          // ★追加★：状態変更後も必ず表示（loadBidでも表示されるが先に即時表示）
+APP.OperatorA.showBidStatus(bidNo, newStatus, "状態変更");
+
+APP.State.setMessage("", "状態を更新しました: " + newStatus);
+return APP.OperatorA.loadBid(bidNo);
+
+          
           })
           .catch(function (e) {
             var msg =
@@ -246,3 +288,4 @@
     }
   };
 })(window);
+
