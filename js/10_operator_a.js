@@ -281,8 +281,10 @@ initStatusBanner: function () {
   // ★追加★：読込ボタン押下直後に、即時ステータス表示（まだ未取得なので「取得中」）
   // 表示場所①：メッセージ欄（状態表示）
   // 表示場所②：ログ欄
+ // [OP-A-50-0] ★追加★：既存データ読込ボタン押下直後に、ログにも状態（取得中）を出す
   if (!APP.Util.isEmpty(bidNo)) {
-    APP.OperatorA.showBidStatus(bidNo, "取得中...", "既存データ読込（開始）");
+    APP.State.setActionNote("読込開始: " + bidNo + "（status=取得中...）");
+    APP.Util.log("[status] " + bidNo + " status=取得中... (既存データ読込開始)");
   }
       
       if (APP.Util.isEmpty(bidNo)) return APP.State.setMessage("入札番号が空です。", "");
@@ -313,8 +315,14 @@ initStatusBanner: function () {
             APP.State.setBidNo(bidNo);
             APP.State.setHeader(header);
             APP.State.setItems(items);
-            APP.State.setActionNote("読込完了: " + bidNo);
-            APP.State.setMessage("", "読込しました。");
+            
+           // [OP-A-50-3] ★修正★：下のログ表示（ログ：…）に status を必ず入れる
+APP.State.setActionNote("読込完了: " + bidNo + "（status=" + (header.status || "(不明)") + "）");
+
+            
+           // [OP-A-50-4] ★修正★：上側のメッセージ（読込しました）に status を必ず入れる
+APP.State.setMessage("", "読込しました。（status=" + (header.status || "(不明)") + "）");
+
           });
         })
         .catch(function (e) {
@@ -404,5 +412,6 @@ setTimeout(function () {
 
   
 })(window);
+
 
 
